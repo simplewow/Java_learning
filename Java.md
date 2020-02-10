@@ -1,5 +1,7 @@
 
 
+
+
 本笔记以尚学堂java课为基础。
 
 https://www.sxt.cn/Java_jQuery_in_action/Billiards_Games.html
@@ -138,9 +140,14 @@ dir /?
 	
 
 ctrl + 左键 查看源码 
+左键    描述
+·	F12	固定
 ctrl + / 注释该行
 f4 ：看继承
-alt + shift +s 开个快速构造和重写equals和get/set方法等功能
+ctrl + shift +o   导入import
+alt  + shift +s   开个快速构造和重写equals和get/set方法等功能
+alt  + shift +r   Rename
+alt  + ?		  写名字，出提示
 ```
 
 
@@ -506,7 +513,7 @@ a+=1——a=a+1
 #>>>：无符号右移。
 	第一个（符号位）也移动，最后前面补0.（这时候变源码）
 
-#>>,<< ：除乘2。（把值展开，左移1位，就等于所有都乘了2，=和乘2）
+#>>,<< ：只能整数除乘2取整。（把值展开，左移1位，就等于所有都乘了2，=和乘2）
 	第一个不管，移动后面的。最后前面正数补0，负数补1
 
 #&和|和^既是逻辑运算符，也是位运算符。
@@ -782,6 +789,9 @@ b,调到标签，并且结束，C调到标签，接着运行下一次。
         System.out.println("北京尚学堂...");
     }
 }
+
+return作用：
+	返回值或者作为函数结束（可直接结束函数，不加后面）
 ```
 
 
@@ -1473,9 +1483,10 @@ public String toString() {
 }
 
 System.out.println(t)=System.out.println(t.toString())
-#可以不写，默认打印的是一连串16地址。
+#一般对象可以不写，默认打印的是一连串16地址。
 
 2) ==和equals
+重写用快捷选择就行。
 “==”代表比较双方是否相同。如果是基本类型则表示值相等，如果是引用类型则表示地址相等即是同一个对象。
 
 Object类中定义有：public boolean equals(Object obj)方法，提供定义“对象内容相等”的逻辑（自己修改想要比较的东西）
@@ -1557,7 +1568,9 @@ Java是使用“访问控制符”来控制哪些细节需要封装，哪些细�
 
 ![](Java.assets/5-2.png)
 
-
+```
+#public 类不能重，文件内其他类可以和包内其它类重名，重了覆盖
+```
 
 ```
 #2） 一些细节
@@ -2185,7 +2198,9 @@ System.out.println(str2 == str6);// false
 
 ![](Java.assets/5-9.png)
 
+`compareTo(String anotherString)`   按字典顺序比较两个字符串。 
 
+`concat(String str)`                              将指定的字符串连接到该字符串的末尾。
 
 ```
 #5，相等判断
@@ -2786,6 +2801,8 @@ public class Test {
 #2，拷贝及衍生方法
 1）拷贝
 static void arraycopy(object src，int srcpos，object dest， int destpos，int length)
+
+System.arraycopy()
 	native；方法。调用本地C，不需要自己实现。
 	从哪，第几个，到哪，第几个，有几个。
 
@@ -2811,7 +2828,8 @@ public class Test {
         int[] a = { 1, 2 };
         System.out.println(a); // 打印数组引用的值；
         System.out.println(a.toString());//同上，地址
-        System.out.println(Arrays.toString(a)); // 打印数组元素的值；
+       #Object[] 不一样[Ljava.lang.Object;@15db9742
+       System.out.println(Arrays.toString(a)); // 打印数组元素的值；
     }
 }
 #Arrays.toString()方法是Arrays类的静态方法，不是Object的toString()方法
@@ -3120,3 +3138,1562 @@ public class Test3 {
 ![](Java.assets/8-1-3.png)
 
 ![](Java.assets/8-1-4.png)
+
+## 8.2 String
+
+```
+#1, 补充
+1）
+String对象称为“不可变对象”：不可变是指方法用了自己不变。final value[]
+如果不再赋值回去，字符串不变。
+例		    str.concat("abc");
+		     str=str.concat("def");
+2）拼接优化
+public class TestString2 {
+    public static void main(String[] args) {
+        //编译器做了优化,直接在编译的时候将字符串进行拼接
+        String str1 = "hello" + " java";//相当于str1 = "hello java";
+        String str2 = "hello java";
+        System.out.println(str1 == str2);//true
+        String str3 = "hello";
+        String str4 = " java";
+        //编译的时候不知道变量中存储的是什么,所以没办法在编译的时候优化（a+"b"）
+        String str5 = str3 + str4;
+        System.out.println(str2 == str5);//false
+    }
+}
+#toString： hashcode的16进制 一般对象能省略，字符串的不一样重写了
+3）常用方法
+1. String类的下述方法能创建并返回一个新的String对象: concat()、 replace()、substring()、 toLowerCase()、 toUpperCase()、trim()。
+2. 提供查找功能的有关方法: endsWith()、 startsWith()、 indexOf()、lastIndexOf()。
+3. 提供比较功能的方法: equals()、equalsIgnoreCase()、compareTo()。
+4. 其它方法: charAt() 、length()。
+```
+
+```
+#2，StringBuffer和StringBuilder
+
+StringBuffer和StringBuilder非常类似，均代表可变的字符序列。 
+这两个类都是抽象类AbstractStringBuilder的子类，方法几乎一模一样。
+
+char value[];
+如果sb="a"+"b"  虽然结果显示“ab，但是分成两个索引,长度为2
+1）
+ 	a. StringBuffer JDK1.0版本提供的类，线程安全，做线程同步检查， 效率较低。
+	b. StringBuilder JDK1.5版本提供的类，线程不安全，不做线程同步检查，因此效率较高。 建议采用该类。
+
+2）常用方法：链式调用 return this a-e
+	a. 重载的public StringBuilder append(…)
+	可以为该StringBuilder 对象添加字符序列，仍然返回自身对象。
+	
+	b. 方法 public StringBuilder delete(int start,int end)
+	可以删除从start开始到end-1为止的一段字符序列，仍然返回自身对象。
+
+    c. 方法 public StringBuilder deleteCharAt(int index)
+    移除此序列指定位置上的 char，仍然返回自身对象。
+	
+    d. 重载的public StringBuilder insert(…)方法
+	可以为该StringBuilder 对象在指定位置插入字符序列，仍然返回自身对象。
+
+    e. 方法 public StringBuilder reverse()
+	用于将字符序列逆序，仍然返回自身对象。
+
+    f. 方法 public String toString() 返回此序列中数据的字符串表示形式。
+
+    g. 和 String 类含义类似的方法：（原字符串不改变）
+    	public int indexOf(String str)
+		public int indexOf(String str,int fromIndex)
+		public String substring(int start)
+		public String substring(int start,int end)
+		public int length() 
+		char charAt(int index)
+```
+
+```
+#3, 陷阱
+相反，StringBuilder和StringBuffer类是对原字符串本身操作的，
+可以对字符串进行修改而不产生副本拷贝或者产生少量的副本。因此可以在循环中使用。
+
+public class Test {
+    public static void main(String[] args) {
+        /**使用String进行字符串的拼接*/
+        String str8 = "";
+        //本质上使用StringBuilder拼接, 但是每次循环都会生成一个StringBuilder对象
+        long num1 = Runtime.getRuntime().freeMemory();//获取系统剩余内存空间
+        long time1 = System.currentTimeMillis();//获取系统的当前时间
+        for (int i = 0; i < 5000; i++) {
+            str8 = str8 + i;//相当于产生了10000个对象："i"和 +后的str8 两个
+        }
+        long num2 = Runtime.getRuntime().freeMemory();
+        long time2 = System.currentTimeMillis();
+        System.out.println("String占用内存 : " + (num1 - num2));
+        System.out.println("String占用时间 : " + (time2 - time1));
+        /**使用StringBuilder进行字符串的拼接*/
+        StringBuilder sb1 = new StringBuilder("");
+        long num3 = Runtime.getRuntime().freeMemory();
+        long time3 = System.currentTimeMillis();
+        for (int i = 0; i < 5000; i++) {
+            sb1.append(i);
+        }
+        long num4 = Runtime.getRuntime().freeMemory();
+        long time4 = System.currentTimeMillis();
+        System.out.println("StringBuilder占用内存 : " + (num3 - num4));
+        System.out.println("StringBuilder占用时间 : " + (time4 - time3));
+    }
+}
+```
+
+![](Java.assets/8-2.png)
+
+## 8.3 时间类
+
+```
+#1，总起
+把1970 年 1 月 1 日 00:00:00定为基准时间，每个度量单位是毫秒（1000）
+现在时刻：long now = System.currentTimeMillis();
+ 这个“时刻数值”是所有时间类的核心值，年月日都是根据这个“数值”计算出来的。
+ 
+ ctrl + shift +o 导入import
+ 
+ C（日历）-----D（时间类）-----DF（格式）----String
+```
+
+<img src="Java.assets/8-3-1.png"  />
+
+
+
+```
+#2, Date时间类(java.util.Date)
+很多方法都已经过时了。JDK1.1之前的Date包含了：日期操作、字符串转化成时间对象等操作。
+
+JDK1.1之后，日期操作一般使用Calendar类，而字符串的转化使用DateFormat类。
+
+Date date1 = new Date();  //当前时刻 
+Date date1_1 = new Date(2000);//给定时刻
+
+Date date1 = new Date();
+        System.out.println(date1.toString());//就是date1
+        							//Wed Feb 05 20:42:54 CST 2020
+        long i = date1.getTime();	//得到转化成毫秒值。1580906642227
+        Date date2 = new Date(i - 1000);
+        Date date3 = new Date(i + 1000);
+        System.out.println(date1.after(date2));  //True
+        System.out.println(date1.before(date2));
+        System.out.println(date1.equals(date2));
+```
+
+```
+#3, DateFormat类和SimpleDateFormat类
+#月是01开始的    ！！！！！
+DateFormat是一个抽象类，一般使用它的的子类SimpleDateFormat类来实现。
+ 把时间对象转化成指定格式的字符串。反之，把指定格式的字符串转化成时间对象。
+							D-DF-S
+			 (d-->s  df.format(d)) (s--->d df.parse(s))
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class TestDateFormat {
+    public static void main(String[] args) throws ParseException {
+        // new出SimpleDateFormat对象
+        SimpleDateFormat s1 = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        SimpleDateFormat s2 = new SimpleDateFormat("yyyy-MM-dd");
+       
+       // 将时间对象转换成字符串,MM可以少输入 05 =5
+        String daytime = s1.format(new Date());
+        System.out.println(daytime); #2020-02-05 08:47:34
+        System.out.println(s2.format(new Date())); #2020-02-05
+        System.out.println(new SimpleDateFormat("hh:mm:ss").format(new Date()));										#08:47:34
+        
+        
+        // 将符合指定格式的字符串转成成时间对象.字符串格式需要和指定格式一致。
+        String time = "2007-10-7";
+        Date date = s2.parse(time);
+        System.out.println("date1: " + date);
+        time = "2007-10-7 20:15:30";
+        date = s1.parse(time);
+        System.out.println("date2: " + date);
+    }
+}	
+
+date1: Sun Oct 07 00:00:00 CST 2007
+date2: Sun Oct 07 20:15:30 CST 2007
+
+
+```
+
+<img src="Java.assets/8-3-2.png" style="zoom:67%;" />
+
+
+
+```
+#4, Calendar日历类
+Calendar 类是一个抽象类，为我们提供了关于日期计算的相关功能，比如：年、月、日、时、分、秒的展示和计算。
+GregorianCalendar 是 Calendar 的一个具体子类，
+
+注意月份的表示，一月是0，二月是1，以此类推，12月是11。 
+星期几 这里是：1-7.周日是1，周一是2，。。。周六是7
+父类Calendar使用常量来表示月份：JANUARY、FEBRUARY等等
+
+import java.util.*;
+public class TestCalendar {
+    public static void main(String[] args) {
+       
+       // 1得到相关日期元素
+        GregorianCalendar calendar = new GregorianCalendar(2999, 10, 9, 22, 10, 50); #默认是当前时刻的信息
+        int year = calendar.get(Calendar.YEAR); // 打印：1999
+        int month = calendar.get(Calendar.MONTH); // 打印：10 -11月
+        int day = calendar.get(Calendar.DAY_OF_MONTH); // 打印：9
+        int day2 = calendar.get(Calendar.DATE); // 打印：9
+        // 日：Calendar.DATE和Calendar.DAY_OF_MONTH同义
+        int date = calendar.get(Calendar.DAY_OF_WEEK); // 打印：3
+        // 星期几 这里是：1-7.周日是1，周一是2，。。。周六是7
+
+
+        // 2设置日期
+        GregorianCalendar calendar2 = new GregorianCalendar();
+        calendar2.set(Calendar.YEAR, 2999);
+        calendar2.set(Calendar.MONTH, Calendar.FEBRUARY); // 月份数：0-11
+        calendar2.set(Calendar.DATE, 3);
+        calendar2.set(Calendar.HOUR_OF_DAY, 10);
+        calendar2.set(Calendar.MINUTE, 20);
+        calendar2.set(Calendar.SECOND, 23);
+        printCalendar(calendar2);
+        
+        // 3日期计算
+        GregorianCalendar calendar3 = new GregorianCalendar(2999, 10, 9, 22, 10, 50);
+        calendar3.add(Calendar.MONTH, -7); // 月份减7
+        calendar3.add(Calendar.DATE, 7); // 增加7天
+        printCalendar(calendar3);
+        
+        // 4日历对象和时间对象转化
+        Date d = calendar3.getTime();
+        GregorianCalendar calendar4 = new GregorianCalendar();
+        calendar4.setTime(new Date());
+        long g = System.currentTimeMillis();
+    }
+    
+    	// 5原来打印太不好了，自己封装出有用的
+    static void printCalendar(Calendar calendar) {
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH) + 1;
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        int date = calendar.get(Calendar.DAY_OF_WEEK) - 1; // 星期几
+        String week = "" + ((date == 0) ? "日" : date);
+        int hour = calendar.get(Calendar.HOUR);
+        int minute = calendar.get(Calendar.MINUTE);
+        int second = calendar.get(Calendar.SECOND);
+        System.out.printf("%d年%d月%d日,星期%s %d:%d:%d\n", year, month, day,  
+                        week, hour, minute, second);
+    }
+}
+c.getActualMaximum(Calendar.DATE); 该月有多少天
+```
+
+```
+#练习：
+利用GregorianCalendar类，如图所示为今日所在月份的日历：
+```
+
+<img src="Java.assets/8-3-3.png" style="zoom:67%;" />
+
+```
+思路先写日--六，然后打印1-31.在判断六换行，然后1号判断。
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Scanner;
+
+public class C {
+	public static void main(String[] args) throws ParseException {
+		System.out.println("请输入：（2005-06-12）");
+		Scanner scanner = new Scanner(System.in);
+        String dateString = scanner.nextLine(); 
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        
+        Date d = df.parse(dateString);
+        
+        
+        
+        
+		GregorianCalendar c = new GregorianCalendar();
+		c.setTime(d);
+		
+		
+		c.set(Calendar.DATE,1);
+		System.out.println("日\t一\t二\t三\t四\t五\t六");
+		for (int i=0;i<c.get(Calendar.DAY_OF_WEEK)-1;i++){
+			System.out.print("\t");
+		}
+	
+		for(int i =1 ; i<=c.getActualMaximum(Calendar.DATE); i++){
+			c.set(Calendar.DATE,i);
+		
+			System.out.print(i+"\t");
+			
+			if(c.get(Calendar.DAY_OF_WEEK)==7){
+				System.out.println();//1先打印在判断换行
+			}
+			
+		}
+	}
+		
+}
+```
+
+## 8.4 Math类
+
+```
+#1， Math类
+java.lang.Math提供了一系列静态方法用于科学计算;
+其方法的参数和返回值类型一般为double型。
+如需更强的数学运算能力，计算高数中的内容，可以使用apache commons下面的Math类库。
+
+ 	  1.abs 绝对值
+      2.acos,asin,atan,cos,sin,tan 三角函数
+      3. sqrt 平方根
+      4. pow(double a, double b) a的b次幂
+      5. max(double a, double b) 取大值
+      6. min(double a, double b) 取小值
+      7. ceil(double a) 大于a的最小整数
+      8. floor(double a) 小于a的最大整数
+      9. random() 返回 0.0 到 1.0 的随机数
+      10. long round(double a) double型的数据a转换为long型(四舍五入)
+      11. toDegrees(double angrad) 弧度->角度
+      12. toRadians(double angdeg) 角度->弧度
+ 实例： 
+ 		 //取整相关操作
+        System.out.println(Math.ceil(3.2));
+        System.out.println(Math.floor(3.2));
+        System.out.println(Math.round(3.2));
+        System.out.println(Math.round(3.8));
+        //绝对值、开方、a的b次幂等操作
+        System.out.println(Math.abs(-45));
+        System.out.println(Math.sqrt(64));
+        System.out.println(Math.pow(5, 2));
+        System.out.println(Math.pow(2, 5));
+        //Math类中常用的常量
+        System.out.println(Math.PI);
+        System.out.println(Math.E);
+        //随机数
+        System.out.println(Math.random());// [0,1)
+```
+
+<img src="Java.assets/8-6.png" style="zoom:50%;" />
+
+
+
+```
+#2，Random类
+比Math的更复杂，而且Math.random()底层调用的就是Random的nextDouble()方法
+		Random rand = new Random();
+		
+        //随机生成[0,1)之间的double类型的数据
+        System.out.println(rand.nextDouble());
+        
+        //随机生成全int类型允许范围之内的整型数据
+        System.out.println(rand.nextInt());
+        
+        //随机生成[0,1)之间的float类型的数据
+        System.out.println(rand.nextFloat());
+        
+        //随机生成false或者true
+        System.out.println(rand.nextBoolean());
+        
+        //随机生成[0,10)之间的int类型的数据
+        System.out.print(rand.nextInt(10));
+        
+        //随机生成[20,30)之间的int类型的数据
+        System.out.print(20 + rand.nextInt(10));
+
+```
+
+<img src="Java.assets/8.png" style="zoom:50%;" />
+
+## 8.5 File类
+
+```
+#1，总起
+ java.io.File类：代表文件和目录。 在开发中，读取文件、生成文件、删除文件、修改文件的属性时经常会用到本类。
+ 
+ File f = new File(path) //path--d:/a.txt 或 \\a.txt（反）文件前目录要存在
+ 
+ #给绝对地址或不给默认user.dir（就是本项目下）中存储
+ #意义是给出地址的东西，接下来再决定创建目录或者文件，以及一系列操作
+ 
+ 1）访问属性的基本用法
+ import java.io.File;
+import java.util.Date;
+public class TestFile2 {
+    public static void main(String[] args) throws Exception {
+        File f = new File("d:/b.txt");
+        System.out.println("File是否存在："+f.exists());
+        System.out.println("File是否是目录："+f.isDirectory());
+        System.out.println("File是否是文件："+f.isFile());
+        System.out.println("File最后修改时间："+new Date(f.lastModified()));
+        System.out.println("File的大小："+f.length());
+        System.out.println("File的文件名："+f.getName());
+        System.out.println("File的目录路径："+f.getPath());
+    }
+}
+#地址：直接打印f或getpath一般显示绝对地址（如果在默认地址下显示相对地址，要获得绝对要getAbsoluyePath()）
+
+
+```
+
+![](Java.assets/8-4-1.png)
+
+![](Java.assets/8-4-2.png)
+
+f.renameTo(new File("”))                                           |        改名字
+
+getParentFile()														    |		得到上级目录得地址
+
+listFiles()																	  |		返回该目录下有啥，包在数组里
+
+
+
+```
+2）创建空文件或目录(在该对象所指的文件或目录不存在的情况下)
+import java.io.File;
+public class TestFile3 {
+    public static void main(String[] args) throws Exception {
+        File f = new File("d:/c.txt");
+        f.createNewFile(); // 会在d盘下面生成c.txt文件，
+        f.delete(); // 将该文件或目录从硬盘上删除
+        File f2 = new File("d:/电影/华语/大陆");
+        boolean flag = f2.mkdir(); //目录结构中有一个不存在，则不会创建整个目录树		boolean flag = f2.mkdirs()//缺失也可以全建									
+        System.out.println(flag);//创建失败
+    }
+}
+```
+
+![](Java.assets/8-4-3.png)
+
+```
+#2，遍历
+import java.io.File;
+public class TestFile6 {
+    public static void main(String[] args) {
+        File f = new File("d:/电影");
+        printFile(f, 0);
+    }
+   
+    static void printFile(File file, int level) {
+        //输出层次数
+        for (int i = 0; i < level; i++) {
+            System.out.print("-");
+        }
+        //输出文件名
+        System.out.println(file.getName());
+        //如果file是目录，则获取子文件列表，并对每个子文件进行相同的操作
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            for (File temp : files) {
+                //递归调用该方法：注意等+1
+                printFile(temp, level + 1);
+            }
+        }
+    }
+}
+#形参，每次调用改变后，原值不改变。
+
+```
+
+## 8.6 枚举
+
+```
+DK1.5引入了枚举类型。枚举类型的定义包括枚举声明和枚举体。格式如下：
+	enum  枚举名 {
+      枚举体（常量列表）}
+所有的枚举类型隐性地继承自 java.lang.Enum。枚举实质上还是类!而每个被枚举的成员实质就是一个枚举类型的实例，他们默认都是public static final修饰的
+
+	当你需要定义一组常量时，可以使用枚举类型。
+	尽量不要使用枚举的高级特性，
+import java.util.Random;
+public class TestEnum {
+    public static void main(String[] args) {
+        // 枚举遍历
+        for (Week k : Week.values()) {
+            System.out.println(k);
+        }
+        // switch语句中使用枚举
+        int a = new Random().nextInt(4); // 生成0，1，2，3的随机数
+        switch (Season.values()[a]) {
+        case SPRING:
+            System.out.println("春天");
+            break;
+        case SUMMER:
+            System.out.println("夏天");
+            break;
+        case AUTUMN:
+            System.out.println("秋天");
+            break;
+        case WINDTER:
+            System.out.println("冬天");
+            break;
+        }
+    }
+}
+/**季节*/
+enum Season {
+    SPRING, SUMMER, AUTUMN, WINDTER
+}
+/**星期*/
+enum Week {
+    星期一, 星期二, 星期三, 星期四, 星期五, 星期六, 星期日
+}
+```
+
+# 9. 容器
+
+## 9.1 泛型
+
+```
+#1，介绍
+ 1) 向集合添加数据时保证数据安全。
+ 2) 遍历集合元素时不需要强制转换。
+ 
+ 泛型的本质就是“数据类型的参数化”。
+ 我们可以把“泛型”理解为数据类型的一个占位符(形式参数)，即告诉编译器，在调用泛型时必须传入实际类型。
+ 
+不泛型
+会出现装箱、拆箱操作，但将用到的数据类型的强制转换操作，会增加处理器的负担。
+同时强制转换还有更严重问题：放入数据是A，取得时候强制转换是B，可以逃过编译器检查，但运行出现类型转换异常。
+代码质量，运行效率也不高。
+
+
+#2，声明
+可以在类的声明处增加泛型列表，如：<T,E,V>。
+class MyCollection<E> {// E:表示泛型;
+    Object[] objs = new Object[5];
+ 
+    public E get(int index) {// E:表示泛型;
+        return (E) objs[index]; //要转换，不然是
+    }
+    public void set(E e, int index) {// E:表示泛型;
+        objs[index] = e;
+    }
+}
+
+public class TestGenerics {
+    public static void main(String[] args) {
+        // 这里的”String”就是实际传入的数据类型；
+        MyCollection<String> mc = new MyCollection<String>();
+        mc.set("aaa", 0);
+        mc.set("bbb", 1);
+        String str = mc.get(1); //加了泛型，直接返回String类型，不用强制转换;
+        System.out.println(str);
+    }
+}
+
+#Object数组，里面是Object对象。
+#Object 随便放进，但是取出来问题大。
+#不加转型，会出错，如果随便转型，能骗过编译器，但是运行报错。
+
+#3，在容器中应用
+容器相关类都定义了泛型，在使用容器类时都要使用泛型。
+在容器的存储数据、读取数据时都避免了大量的类型判断，非常便捷。
+public class Test {
+    public static void main(String[] args) {
+        // 以下代码中List、Set、Map、Iterator都是与容器相关的接口;
+        List<String> list = new ArrayList<String>();
+        Set<Man> mans = new HashSet<Man>();
+        Map<Integer, Man> maps = new HashMap<Integer, Man>();
+        Iterator<Man> iterator = mans.iterator();
+    }
+}
+```
+
+<img src="Java.assets/9-1.png" style="zoom: 67%;" />
+
+
+
+## 9.2 Collection
+
+```
+#1，介绍
+一般通过“容器”来容纳和管理数据。（数组就是一种容器）
+	数组的优势：是一种简单的线性序列，可以快速地访问数组元素，效率高。如果从效率和类型检查的角度讲，数组是最好的。
+    数组的劣势：不灵活。容量需要事先定义好，不能随着需求的变化而扩容。
+
+更强大、更灵活、容量随时可扩的容器        
+```
+
+![](Java.assets/9-2.png)
+
+```
+#定义的方法
+List、Set是Collection的子接口，意味着所有List、Set的实现类都有上面的方法
+	remove 移走的对象还在，原理使用拷贝后面往前。
+	直接打印容器，是直接显示容器内容（例[1,2]）
+	
+```
+
+![](Java.assets/9-2-1.png)
+
+
+
+## 9.3 List
+
+```
+#1, List特点和常用方法
+List接口常用的实现类有3个：ArrayList、LinkedList和Vector。
+
+List是有序(下标)、可重复(e1.equals(e2) )的容器。
+
+除了Collection接口中的方法，List多了一些跟顺序(索引)有关的方法
+```
+
+![](Java.assets/9-3.png)
+
+```
+1）List的常用方法
+public class TestList {
+    /**
+     * 测试add/remove/size/isEmpty/contains/clear/toArrays
+     （没有iterator）
+     */
+     
+    public static void test01() {
+        List<String> list = new ArrayList<String>();
+        System.out.println(list.isEmpty()); // true,容器里面没有元素
+        list.add("高淇");
+        System.out.println(list.isEmpty()); // false,容器里面有元素
+        list.add("高小七");//最后加
+        list.add("高小八");
+        System.out.println(list);
+        System.out.println("list的大小：" + list.size());
+        System.out.println("是否包含指定元素：" + list.contains("高小七"));
+        list.remove("高淇");
+        System.out.println(list); [X,X]
+        Object[] objs = list.toArray();
+        System.out.println("转化成Object数组：" + Arrays.toString(objs));  //[X,X]
+        list.clear();
+        System.out.println("清空所有元素：" + list);
+    }
+    public static void main(String[] args) {
+        test01();
+    }
+}
+```
+
+```
+2) 两个List之间的元素处理
+		 List<String> list = new ArrayList<String>();
+        list.add("高淇");
+        list.add("高小七");
+        list.add("高小八");
+ 
+        List<String> list2 = new ArrayList<String>();
+        list2.add("高淇");
+        list2.add("张三");
+        list2.add("李四");
+        
+        System.out.println(list.containsAll(list2)); //false list是否包含list2中所有元素
+        System.out.println(list);
+        list.addAll(list2); //将list2中所有元素都添加到list中
+        System.out.println(list);
+        list.removeAll(list2); //从list中删除同时在list和list2中存在的元素
+        System.out.println(list);
+        list.retainAll(list2); //取list和list2的交集
+        System.out.println(list);
+```
+
+```
+3) List中操作索引的常用方法
+ List<String> list = new ArrayList<String>();
+        list.add("A");
+        list.add("B");
+        list.add("C");
+        list.add("D");
+        System.out.println(list); // [A, B, C, D]
+        list.add(2, "高");
+        System.out.println(list); // [A, B, 高, C, D]
+        list.remove(2);
+        System.out.println(list); // [A, B, C, D]
+        list.set(2, "c");
+        System.out.println(list); // [A, B, c, D]
+        System.out.println(list.get(1)); // 返回：B
+        list.add("B");
+        System.out.println(list); // [A, B, c, D, B]
+        System.out.println(list.indexOf("B")); // 1 从头到尾找到第一个"B"
+        System.out.println(list.lastIndexOf("B")); // 4 从尾到头找到第一个"B"
+```
+
+
+
+
+
+```
+#2, ArrayList特点和底层实现
+ArrayList底层是用数组实现的存储。
+特点：查询效率高，增删效率低，线程不安全。
+```
+
+<img src="Java.assets/9-3-3.png" style="zoom:67%;" />
+
+```
+ArrayList底层使用Object数组来存储元素数据。
+所有的方法，都围绕这个核心的Object数组来开展。
+
+扩容：数组长度是有限的，而ArrayList是可以存放任意数量的对象长度不受限制
+	移动1.5倍（+的优先级大于>>）
+```
+
+![](Java.assets/9-3-4.png)
+
+
+
+```
+#自己实现底层
+
+import java.util.Arrays;
+/**
+ * 
+ * 自定义Arraylist 3
+ * 2加泛型
+ *3加数组扩容
+ *4 set get
+ *4 自定义边界检查  set get <和正 创建：正数
+ *5 remove 两种
+ *5 其他方法
+ *
+ */
+
+public class A5 <E>{
+	private Object[] elementData;
+	private Object[] elementData1;
+	private int size;  //指针，最后下标的后一位
+
+	private static final int DEFALT_CAPACITY =10;
+	
+	//用obj 数组，默认10，或自定义
+	public A5(){
+		elementData = new Object[DEFALT_CAPACITY];
+	}
+	
+	public A5(int s){
+		if (s<=0)
+			throw new RuntimeException("创建不合法");
+		elementData = new Object[s];
+		
+	}
+	public boolean isEmpty(){
+		return size==0?true:false;
+	}
+	public void remove(int index){
+		judgeindex(index);
+		System.arraycopy(elementData, index+1, elementData, index, size-1-index);
+		elementData[--size]=null;
+
+	}
+	public void remove(E e){
+		for(int i=0 ; i<size; i++){
+			if (e.equals(elementData[i])){
+				remove(i);
+			}
+		}
+	}
+	public void judgeindex(int index){
+		if ( index <0 || index >= size)
+			throw new RuntimeException("索引不合法");
+	}
+	
+	public E get(int index){
+		judgeindex(index);
+		return (E)elementData[index];
+	}
+	public void set(E e,int index){
+		judgeindex(index);
+		elementData[index]=e;
+	}
+		public void add(E element){
+		if(size > ( elementData.length-1)){		
+			int l = (int)(elementData.length) + 1  ; 
+			//int l = 1;
+			elementData1 = new Object[l];
+			System.arraycopy(elementData,0,elementData1,0,size);
+			elementData = elementData1;
+			//System.out.println("-");
+		}
+			//System.out.println(elementData.length);
+			elementData[size++]=element; //后++ 
+			//System.out.println("+");
+				
+	}
+		
+	@Override
+	public String toString() {
+		
+		System.out.println(elementData.length);
+		
+		StringBuilder sb = new StringBuilder();
+		// like [1,2]
+		sb.append("[");
+		for (Object obj :elementData){
+			if (obj == null){
+				break;
+			}
+			sb.append(obj+",");
+			
+		}
+		sb.setCharAt(sb.length()-1, ']');		
+		return sb.toString() ;
+		
+	}
+
+	public static void main(String[] args) {
+		A5<String> a1 =new A5<String>();
+		a1.add("a");
+		a1.add("b");
+		a1.add("c");
+//		System.out.println(a1); My.A1@15db9742  没重写
+//		System.out.println(a1.toString());My.A1@15db9742
+		System.out.println(a1);
+		System.out.println(a1.get(1));
+		a1.remove(1);
+		System.out.println(a1);
+		a1.add("d");
+		a1.add("e");
+		System.out.println(a1);
+		System.out.println(a1.isEmpty());
+	}
+	
+}
+
+#断点调试debug看或者自己一个个打印判断
+#容器中比较都是equals
+```
+
+
+
+```
+#3, LinkedList特点和底层实现
+LinkedList底层用双向链表实现的存储。特点：查询效率低，增删效率高，线程不安全。
+双向链表也叫双链表，是链表的一种，它的每个数据节点中都有两个指针，分别指向前一个节点和后一个节点。(方便加减)
+
+底层：思路，有Node类型，有Link类型。
+	Node有三部分：前，内容，后。
+	Link有firstN,lastN,和一般N
+#涉及删，就考虑两边就行
+#涉及加，考虑四边。
+```
+
+```
+#N：
+package My;
+
+public class N1 {	
+	N1 previous;		//上一个节点
+	N1 next;				//下一个节点		
+	Object element;		//元素数据	
+	public N1(N1 previous, N1 next, Object element) {
+		super();
+		this.previous = previous;
+		this.next = next;
+		this.element = element;
+	}
+	public N1(Object element) {
+		super();
+		this.element = element;
+	}
+		
+}
+```
+
+```
+#L：
+package My;
+
+/**
+ * 自定义一个链表
+ * 2 高效两头get
+ *3 remove
+ *4,插入
+ *5增加泛型
+ */
+public class L5 <E>{
+	
+	private N1 first ;
+	private N1 last;
+	
+	private int length;
+	
+	// [a,b
+	public void add(int index , E e){
+		if ( index <0 || index >length)
+			throw new RuntimeException("索引不合法");
+		
+		//末尾
+		if(index==length){
+			add( e);
+			return;
+		}
+		
+		N1 n = new N1(e);
+		N1 temp = getN(index);		
+		N1 up=temp.previous;
+
+		if(up==null){
+			first=n;
+			n.next=temp;
+			temp.previous=n;
+		}else{
+			n.previous=up;
+			up.next=n;
+			
+			temp.previous=n;
+			n.next=temp;
+		}
+		
+		length++;
+	}
+	public void remove(int index){
+		if ( index <0 || index >length-1)
+			throw new RuntimeException("索引不合法");
+		N1 temp = getN(index);
+		if(first==temp){
+			first=temp.next;
+			first.previous=null;
+		}else  if(last ==temp){
+			last=temp.previous;
+			last.next=null;
+		}else{
+			temp.previous.next=temp.next;
+			temp.next.previous=temp.previous;
+		}
+		length--;
+		
+	}
+	
+	
+	public void add(E e){
+		if (first == null){
+			first = new N1(e);
+			last = first;
+		}
+		else{
+		N1 temp = new N1(e);
+		last.next=temp;
+		temp.previous=last;
+		last=temp;
+		}
+		length++;
+	}
+	//[a,b,c,d]
+	public E get(int index){
+		N1 temp = getN(index);
+		return (E) temp.element;
+		}
+	
+	public N1 getN(int index){
+		//加个 手动异常抛出，
+				
+				N1 temp ;
+				if (index < length>>1){
+					temp = first;
+					for(int i=0;i<index;i++){
+						temp=temp.next;
+					}
+				}else{
+				temp = last;
+				for(int i=length-1;i>index;i--){
+					temp=temp.previous;
+				}
+						
+					}
+				return temp;
+	}
+		
+
+	
+	@Override
+	public String toString() {
+		StringBuilder sb= new StringBuilder();
+		sb.append("[");		
+		N1 temp =first;
+		while (temp !=null){
+			//System.out.println(temp.element);
+			sb.append(temp.element+",");
+			temp=temp.next;
+		}
+		//System.out.println(sb);
+		//System.out.println(sb.length()); 拼接之后长度是2
+		sb.setCharAt(sb.length()-1, ']'); 
+		return sb.toString();
+	}
+	public static void main(String[] args) {
+		L5<String> l = new L5<>();
+		l.add("1");
+		l.add("2");
+		l.add("3");	
+		System.out.println(l);
+		System.out.println(l.get(2));	
+		l.remove(2);
+		System.out.println(l);		
+		l.add("4");
+		System.out.println(l);	
+		l.add(0, "0");
+		System.out.println(l);
+		l.add(l.length-1, "5");
+		System.out.println(l);
+		l.add(l.length, "6");
+		System.out.println(l);
+		
+		
+	}
+		
+}
+
+```
+
+```
+#4, Vector向量
+ Vector底层是用数组实现的List，(核心还是Object[])
+部分相关的方法都加了同步检查，因此“线程安全,效率低”。 
+比如，indexOf方法就增加了synchronized同步标记。
+```
+
+<img src="Java.assets/9-3-5.png" style="zoom:67%;" />
+
+```
+ 如何选用ArrayList、LinkedList、Vector?
+      a. 需要线程安全时，用Vector。
+      b. 不存在线程安全问题时，并且查找较多用ArrayList(一般使用它)。
+      c. 不存在线程安全问题时，增加或删除元素较多用LinkedList。
+```
+
+
+
+## 9.4 Map
+
+```
+#1, Map接口
+Map就是用来存储“键(key)-值(value) 对”的。{ ：}
+  	键值是对象。
+  	键不能重复，重复覆盖。（根据equals方法）
+Map 接口的实现类有HashMap、TreeMap、HashTable、Properties等。
+```
+
+![](Java.assets/9-4.png)
+
+
+
+```
+#2，HashMap和HashTable
+HashMap采用哈希算法实现，是Map接口最常用的实现类。
+HashTable类和HashMap用法几乎一样，底层实现几乎一样，只不过HashTable的方法添加了synchronized关键字确保线程同步检查，效率较低。
+
+区别：
+  a. HashMap: 线程不安全，效率高。允许key或value为null。
+  b. HashTable: 线程安全，效率低。不允许key或value为null。
+
+public class TestMap {
+    public static void main(String[] args) {
+        Map<Integer, String> m1 = new HashMap<Integer, String>();
+        Map<Integer, String> m2 = new HashMap<Integer, String>();
+        m1.put(1, "one");
+        m1.put(2, "two");
+        m1.put(3, "three");
+        m2.put(1, "一");
+        m2.put(2, "二");
+        System.out.println(m1.size());
+        System.out.println(m1.containsKey(1));
+        System.out.println(m2.containsValue("two"));
+        m1.put(3, "third"); //键重复了，则会替换旧的键值对
+        Map<Integer, String> m3 = new HashMap<Integer, String>();
+        m3.putAll(m1);
+        m3.putAll(m2);
+        System.out.println("m1:" + m1);
+        System.out.println("m2:" + m2);
+        System.out.println("m3:" + m3);
+    }
+}  
+```
+
+<img src="Java.assets/9-4-1.png" style="zoom:60%;" />
+
+```
+#3, HashMap底层实现详解
+1) 原理
+HashMap底层实现采用了哈希表，这是一种非常重要的数据结构。（如redis）
+ 	(1)数组：占用空间连续。	寻址容易，查询速度快。但是，增加和删除效率非常低。
+    (2)链表：占用空间不连续。 寻址困难，查询速度慢。但是，增加和删除效率非常高。
+      那么，我结合数组和链表的优点(即查询快，增删效率也高) 
+      哈希表的本质就是“数组+链表”。
+```
+
+```
+a.Hashmap基本结构讲解
+核心内容：Entry[] table 就是HashMap的核心数组结构，称之为“位桶数组”。
+```
+
+![](Java.assets/9-4-2.png)
+
+![](Java.assets/9-4-3.png)
+
+```
+一个Entry对象存储了：
+      1. key：键对象 value：值对象
+      2. next:下一个节点
+      3. hash: 键对象的hash值（hashcode处理后的值）
+     
+```
+
+![](Java.assets/9-4-4.png)
+
+
+
+<img src="Java.assets/9-4-5.png" style="zoom:60%;" />
+
+```
+b.存储数据过程put(key,value)
+明白了HashMap的基本结构后，继续深入学习HashMap如何存储数据。
+此处的核心是如何产生hash值，该值用来对应数组的存储位置。
+```
+
+
+
+​		![](Java.assets/9-4-6.png)
+
+```
+#总的来说就是，key算出hash（code取余），放入对应数值位置，然后同时链表
+
+目的是将”key-value两个对象”成对存放到HashMap的Entry[]数组中
+	(1) 获得key对象的hashcode (hashcode是本地方法。)
+    首先调用key对象的hashcode()方法，获得hashcode。
+    
+	(2) 根据hashcode计算出hash值(要求在[0, 数组长度-1]区间)
+	hash值尽量均匀地分布在[0,数组长度-1]这个区间，减少“hash冲突”
+           i. 两种极端简单和低下的算法是：
+           hash值总是1。意味着，HashMap也退化成了一个“链表”。
+		   hash完全分散，意味是个数组。
+		   
+           ii. 一种简单和常用的算法是(相除取余算法)：
+           hash值 = hashcode%数组长度
+           早期的HashTable就是采用这种算法。但是，这种算法由于使用了		   “除法”，效率低下。
+           
+           JDK后来改进了算法：数组长度必须为2的整数幂，这样采用位运算			即可实现取余的效果：hash值 = hashcode&(数组长度-1)。
+
+取余(h%length)和位运算(h&(length-1))结果是一致的。事实上，为了获得更好的散列效果，JDK对hashcode进行了两次散列处理(核心目标就是为了分布更散更均匀)，源码如下：
+```
+
+<img src="Java.assets/9-4-7.png" style="zoom:60%;" />
+
+```
+ 	(3) 生成Entry对象
+    一个Entry对象包含4部分：key对象、value对象、hash值、指向下一个	Entry对象的引用。我们现在算出了hash值。下一个Entry对象的引用为		null。
+
+    (4) 将Entry对象放到table数组中
+    如果本Entry对象对应的数组索引位置还没有放Entry对象，则直接将Entry	对象存储进数组;如果对应索引位置已经有Entry对象，则将已有Entry对象的	   next指向本Entry对象，形成链表。
+```
+
+```
+c. 取数据过程get(key)
+通过key对象获得“键值对”对象，进而返回value对象
+   (1) 获得key的hashcode，通过hash()散列算法得到hash值，进而定位到	  数组的位置。
+
+   (2) 在链表上挨个比较key对象。 调用equals()方法，将key对象和链表上	所有节点的key对象进行比较，直到碰到返回true的节点对象为止。
+
+   (3) 返回equals()为true的节点对象的value对象。
+
+hashcode()和equals方法的关系：
+      Java中规定，两个内容相同(equals()为true)的对象必须具有相等的hashCode。
+      
+d. 扩容问题
+	HashMap的位桶数组，初始大小为16。实际使用时，显然大小是可变的。如果位桶数组中的元素达到(0.75*数组 length)， 就重新调整数组大小变为原来2倍大小。
+	扩容很耗时。扩容的本质是定义新的更大的数组，并将旧数组内容挨个拷贝到新数组中
+
+e. JDK8将链表在大于8情况下变为红黑二叉树
+	JDK8中，HashMap在存储一个元素时，当对应链表长度大于8时，链表就转换为红黑树，这样又大大提高了查找的效率。
+```
+
+```
+2) 自己底层实现
+需要一个节点类，和M类（数组table）
+	M类中各种方法，要判断重复等问题。
+package My;
+
+/**
+ * 自定义一个HashMap
+ * 完全实现put
+ * 2，重写toString
+ *
+ *3.get
+ *3,泛型
+ */
+public class M3 <K,V>{
+	N2[] table;
+	int size;
+	
+	public M3() {
+		table = new N2[16];
+				
+	}
+	
+	// key---value
+	public V get(K key){
+		
+		int hash = myHash(key.hashCode() , table.length);
+		V value = null;
+		
+		N2 temp=table[hash];
+		
+		if (temp!=null){
+			
+			while (temp!=null){
+				if(temp.key.equals(key)){
+					//System.out.println(temp.value);
+					value=(V) temp.value;
+					break;
+					
+				}else{
+					temp= temp.next;
+				}
+				
+			}
+		}
+		
+		return  value;
+	}
+	
+	@Override // {10:"a"}
+	public String toString() {
+
+		StringBuilder sb = new StringBuilder();
+		sb.append("{");
+		for(N2 t : table){
+			if(t==null){
+				continue;
+			}
+			if(t.next==null){
+				sb.append(t.key+":"+t.value+",");
+				continue;
+			}
+				
+	
+			while(t!=null ){
+				sb.append(t.key+":"+t.value+",");
+				t=t.next;
+			}			
+		}
+		sb.setCharAt(sb.length()-1,'}');
+		
+		return sb.toString();
+		
+	}
+	
+	public void put(K key , V value){
+		//先创对象
+		N2 temp = new N2();
+		temp.key=key;
+		temp.value=value;
+		temp.hash=myHash(key.hashCode(),table.length);
+		
+		N2 temp1= table[temp.hash];
+		//找数组，判断，没有赋值；
+		//有：一个，判断重复，     多个遍历链表：不重复，加最后，重复覆盖(有两种情况加两种情况)
+		if(temp1==null ){
+			
+			table[temp.hash]=temp;
+			//System.out.println("1"+table[temp.hash].key);
+		}else if(temp1.next==null){
+			//System.out.println("2"+temp1.key);
+			//System.out.println(temp1.key.equals(temp.key));
+			if(temp1.key.equals(temp.key)){
+				temp1.value=temp.value;
+				return;
+			}
+			temp1.next=temp;
+HashMap			
+			
+		}else{
+			N2 temp2 = null;
+			while(temp1 != null){
+				//重复
+				//System.out.println("3"+temp1.key);
+				//System.out.println(temp1.key.equals(temp.key));
+				if( temp1.key.equals(temp.key) ){
+					temp1.value=temp.value;
+					
+					return;
+				}else{
+				//不重复
+					temp2=temp1;
+					temp1=temp1.next;
+					}
+				
+			}
+			temp2.next=temp;
+		}
+		
+		
+		size++;
+	}
+	
+	private int myHash(int k , int length){		
+		return k&(length-1);
+	}
+	
+	public static void main(String[] args) {
+		M3<Integer,String> m = new M3<Integer,String>();
+		m.put(10, "aa");   //10
+		
+		m.put(36, "aa");   //4
+		m.put(36, "aaa");
+		
+		m.put(20, "bb");   //4
+		m.put(20, "cc");
+		m.put(20, "ccc");
+		
+		m.put(52, "dd");   //4
+		
+		m.put(30, "cc");  //14
+				
+		System.out.println(m);
+		System.out.println("-----");
+		System.out.println(m.get(10));
+		
+		System.out.println(m.get(36));
+		System.out.println(m.get(20));
+		System.out.println(m.get(52));
+				
+	}			
+}
+	
+```
+
+```
+#4，TreeMap的使用和底层实现
+TreeMap是红黑二叉树的典型实现。一行核心代码：（红黑为了更平衡树）
+private transient Entry<K,V> root = null;
+
+root用来存储整个树的根节点。Entry(是TreeMap的内部类)的代码：
+存储了本身数据、左节点、右节点、父节点、以及节点颜色。 
+```
+
+<img src="Java.assets/9-4-8.png" style="zoom:60%;" />
+
+```
+treeMap和HashMap实现了同样的接口Map，因此，用法对于调用者来说没有区别。
+HashMap效率高于TreeMap;
+在需要排序的Map时才选用TreeMap。
+```
+
+```
+2）默认key增排序，可以自定义类排序法(Comparable接口）
+```
+
+![](Java.assets/9-4-10.jpg)
+
+
+
+## 9.5 Set
+
+```
+#1，Set接口
+Set接口继承自Collection，（核心都是Map）
+Set接口中没有新增方法，方法和Collection保持完全一致。
+
+Set容器特点：无序、不可重复。
+	能遍历查找
+	equals()方法重复（null也只有一个）
+
+HashSet、TreeSet等，一般使用HashSet。
+```
+
+```
+#2，HashSet
+HashSet核心HashMap，只加key，value固定了。
+```
+
+<img src="Java.assets/9-5-1.png" style="zoom:60%;" />
+
+```
+实现：
+注意.keySet用法（map得到key的set）
+package My;
+
+import java.util.HashMap;
+
+public class S1 {
+	HashMap map;
+	private static final Object PRESENT = new Object();
+	public S1(){
+		map=new HashMap();
+	}
+	public void add(Object o){
+		map.put(o, PRESENT);
+	}
+	public int size(){
+		return map.size();
+	}
+	public String toString(){
+		StringBuilder sb= new StringBuilder();
+		sb.append("[");
+		for(Object k  : map.keySet()){
+				sb.append(k+",");
+				
+			}
+			sb.setCharAt(sb.length()-1, ']'); 
+			return sb.toString();
+			
+	}
+	public static void main(String[] args) {
+		S1 s = new S1();
+		s.add("a");
+		s.add("a");
+		s.add("a1");
+		s.add("a2");
+		System.out.println(s);
+		L1 l =new L1();
+	}
+}
+```
+
+```
+#3，TreeSet
+HashSet核心TreeMap，
+TreeSet对元素进行排序，因此，自定义类需要实现Comparable接口。（compareTo()方法）
+TreeSet中不能放入null元素
+```
+
+## 9.6 迭代器
+
+**使用Iterator迭代器遍历容器元素(List/Set/Map)**
+
+```
+三大都有c，c又有i接口，各自实现了
+
+XX.iterator(); 生成迭代器
+iter.hasNext();判断有没有下一个
+iter.next();   下一个
+```
+
+
+
+```
+#1，List
+public class Test {
+    public static void main(String[] args) {
+        List<String> aList = new ArrayList<String>();
+        for (int i = 0; i < 5; i++) {
+            aList.add("a" + i);
+        }
+        System.out.println(aList);
+        
+        for (Iterator<String> iter = aList.iterator(); iter.hasNext();) {
+            String temp = iter.next();
+            System.out.print(temp + "\t");
+            if (temp.endsWith("3")) {// 删除3结尾的字符串
+                iter.remove();
+            }
+        }
+        System.out.println();
+        System.out.println(aList);
+    }
+}
+```
+
+![](Java.assets/9-6.png)
+
+```
+#2，Set
+public class Test {
+    public static void main(String[] args) {
+        Set<String> set = new HashSet<String>();
+        for (int i = 0; i < 5; i++) {
+            set.add("a" + i);
+        }
+        System.out.println(set);
+        for (Iterator<String> iter = set.iterator(); iter.hasNext();) {
+            String temp = iter.next();
+            System.out.print(temp + "\t");
+        }
+        System.out.println();
+        System.out.println(set);
+    }
+}
+```
+
+```
+#3，Map
+
+1）entrySet() 得到Entry节点类Set
+public class Test {
+    public static void main(String[] args) {
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("A", "高淇");
+        map.put("B", "高小七");
+        
+        Set<Entry<String, String>> ss = map.entrySet();
+        for (Iterator<Entry<String, String>> iterator = ss.iterator(); iterator.hasNext();) {
+            Entry<String, String> e = iterator.next();
+            System.out.println(e.getKey() + "--" + e.getValue());
+        }
+    }
+}
+```
+
+```
+2）keySet() key获得Key的 Set
+public class Test {
+    public static void main(String[] args) {
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("A", "高淇");
+        map.put("B", "高小七");
+        
+        Set<String> ss = map.keySet();
+        for (Iterator<String> iterator = ss.iterator(); iterator.hasNext();) {
+            String key = iterator.next();
+            System.out.println(key + "--" + map.get(key));
+        }
+    }
+}
+```
+
+<img src="Java.assets/9-6-1.png" style="zoom:60%;" />
+
+## 9.7 遍历总结
+
+![](Java.assets/9-7-1.png)
+
+![](Java.assets/9-7-2.png)
+
+
+
+## 9.8 Collections工具类
+
+ java.util.Collections 对Set、List、Map进行排序、填充、查找元素的辅助方法。
+
+```
+a. void sort(List) //对List容器内的元素排序，排序的规则是按照升序
+b. void shuffle(List) //对List容器内的元素进行随机排列。
+c. void reverse(List) //对List容器内的元素进行逆续排列 。
+d. void fill(List, Object) //用一个特定的对象逐个代替原List容器。
+e. int binarySearch(List, Object)//对于顺序的List容器，采用折半查找的方法查找特定对象。
+```
+
+## 9.9 表格数据存贮
+
+[源代码]: source\9-collection	"两种实现"
+
+![](Java.assets/9-9.jpg)
+
+```
+#作业总结：
+1，add(int,Object) 有自动检查，不能越界，自动抛出运行异常
+
+2，向Hash中添加自定义类的对象信息，需要重写hashCode和equals( )。
+		//快捷键生成
+向Tree中添加自定义类的对象信息，需要实现Comparable接口，指定比较 规则。
+	//如9.4中，C接口要加自己类的泛型<>，方法参数为类对象。
+```
+
+
+
