@@ -148,6 +148,7 @@ ctrl + shift +o   导入import
 alt  + shift +s   开个快速构造和重写equals和get/set方法等功能
 alt  + shift +r   Rename
 alt  + ?		  写名字，出提示
+ctrl + f          查询替换
 ```
 
 
@@ -1544,6 +1545,18 @@ class ChildClass extends FatherClass {
       4. 上面步骤，只要找到h变量，则这个过程终止。
 ```
 
+```
+super 用作构造器好处：
+属性为：
+	#protected 
+super(a),直接父亲赋值给参数a，子类可以少写参数a，（this.a 直接继承父亲的值）
+
+	#private   
+父亲有值，但是子类继承不到。看不见参数a（用不了this.a，没值）
+
+
+```
+
 
 
 ## 5.2 封装
@@ -1699,6 +1712,7 @@ public class TestPolym {
     public static void main(String[] args) {
         Animal a1 = new Cat(); // 向上可以自动转型
         //1传的具体是哪一个类就调用哪一个类的方法。大大提高了程序的可扩展性。
+        
         animalCry(a1);
         Animal a2 = new Dog();
         animalCry(a2);//a2为编译类型，Dog对象才是运行时类型。
@@ -1708,7 +1722,9 @@ public class TestPolym {
         Dog dog = (Dog)a2;//向下需要强制类型转换
         dog.seeDoor();
     }
- 
+ 		//或者可以，让部分多态：
+        //Dog d = new Dog() ,然后 animalCry(d):既可以多态，又可以还用自己的方法
+    
     // 有了多态，只需要让增加的这个类继承Animal类就可以了。
     static void animalCry(Animal a) {
         a.shout();
