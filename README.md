@@ -1,4 +1,5 @@
 # Java_learning
+最好以typora等软件（markdown）打开，这样能显示目录
 
 #本笔记是以尚学堂公开JAVA所做的笔记。
 
