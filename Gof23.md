@@ -276,7 +276,7 @@ public class Sheep implements Cloneable{
 		
 		//添加如下代码实现深复制(deep Clone)
 		Sheep2 s = (Sheep2) obj;
-		s.birthday = (Date) 	this.birthday.clone();  //把属性也进行克隆！
+		s.birthday = (Date) this.birthday.clone();  //把属性也进行克隆！
 		
 		return obj;
 	}

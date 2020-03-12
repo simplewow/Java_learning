@@ -1375,3 +1375,382 @@ BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream(
 再正则处理
 ```
 
+
+
+# 16 JDBC
+
+## 16.1 总体规划
+
+![](Java4.assets/16-1-1.png)
+
+
+
+![](Java4.assets/16-1-2.png)
+
+
+
+## 16.2 JDBC技术
+
+### 1）介绍
+
+```
+JDBC(Java Database  Connection)为java开发者使用数据库 提供了统一的编程接口，它由一组java类和接口组成。
+
+数据库厂商自 己必须实现JDBC这套接口。而数据库厂商的JDBC实现，我们 就叫他此数据库的数据库驱动。
+```
+
+![](Java4.assets/16-2-1.png)
+
+
+
+![](Java4.assets/16-2-3.png)
+
+
+
+### 2）常用接口
+
+```
+#1，Driver 和 DriverManager 和 Connection
+
+#8.0 +  MySql:
+#驱动
+Class.forName("com.mysql.cj.jdbc.Driver");
+
+#管理驱动：建立连接
+Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/test?serverTimezone=UTC","root", null); 
+
+```
+
+
+
+```
+#2，Statement 和 ResultSet 
+```
+
+![](Java4.assets/16-2-4.png)
+
+
+
+![](Java4.assets/16-2-5.png)
+
+
+
+```
+1) Statement
+
+//有注入风险，当你拼接字符串，可能别人传参数，，然后参数可以修改整个数据库
+//例  "5 or 1=1 " "delete from t_user where id="+id  删除所有的
+Statement stmt= con.createStatement();
+String str  = " insert into t_usr (usrname,pwd,regTime) values ('王五',666,now() )  ";
+stmt.execute(str);
+
+2）PreparedStatement
+预编译反注入，但是空间有限
+占位符：都是1 ，开始
+
+String sql = "insert into t_user (username,pwd,regTime) values (?,?,?)";  //?占位符
+ps = conn.prepareStatement(sql);
+
+			
+//可以使用setObject方法处理参数，，而省去了专门用特定的类型
+ps.setObject(1, "abc");
+ps.setObject(2, "234567");
+ps.setObject(3, new java.sql.Date(System.currentTimeMillis()));
+			
+			
+			
+//ps.execute();
+int count = ps.executeUpdate(); //变化了几行。  这里 return 1
+System.out.println(count);
+
+
+3）ResultSet
+get,也可以Obj
+
+是个迭代对象，通过 while .next
+列数也是1开始
+
+String sql = "select id,username,pwd from t_user where id>?";  //?占位符
+ps = conn.prepareStatement(sql);
+ps.setObject(1, 2);  //把id大于2的记录都取出来
+rs = ps.executeQuery();
+while(rs.next()){
+System.out.println(rs.getInt(1)+"---"+rs.getString(2)+"---"+rs.getString(3));
+			}
+
+4）关闭
+遵循：resultset-->statment-->connection这样的关闭顺序！一定要将三个trycatch块，分开写！ （后的先关，分开写防止前面异常后面不跑出了）
+finally{
+			try {
+				if(rs!=null){
+					rs.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			try {
+				if(ps!=null){
+					ps.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			try {
+				if(conn!=null){
+					conn.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+```
+
+
+
+### 3）批处理
+
+```
+Batch 
+– 建议用Statement，因为PreparedStatement的预编译空间有限 ，当数据量特别大时，会发生异常。
+-关闭自动事务提交
+
+// 不多也可以不用batch
+
+conn.setAutoCommit(false);  //设为手动提交
+for(int i=0;i<20000;i++){
+	stmt.addBatch("insert into t_user (username,pwd,regTime) values ('gao"+i+"',666666,now())");
+			}
+			
+stmt.executeBatch();
+conn.commit();  //提交事务
+
+```
+
+
+
+### 4）事务
+
+![](Java4.assets/16-4-1png.png)
+
+```
+#正常情况下，都是一个语句，不管成功还是失败，都是一个事务
+
+#测试：
+当你关闭自动提交时，，你自己提交 或 失败（自动的） 
+才算一个事务
+```
+
+![S16-4-2](Java4.assets/S16-4-2.png)
+
+![](Java4.assets/16-4-3.png)
+
+
+
+### 5）时间类型
+
+![](Java4.assets/16-6-1.png)
+
+
+
+```
+
+都是有给定long ， 返回类型
+
+#1，java.sql.Date
+#没有空构造器，不能返回当前时间，除非：
+java.sql.Date date = new java.sql.Date(System.currentTimeMillis())
+
+#2，java.sql.Timestamp
+#返回当前时间 或者 特定时间
+
+Timestamp stamp = new Timestamp(System.currentTimeMillis());  
+//如果需要插入指定日期，可以使用Calendar、DateFormat
+```
+
+
+
+
+
+### 6)  大数据处理
+
+都是和流挂钩，
+
+输入到数据库，是直接输入流。
+
+输出到程序，   也是获取输入流（先得对象，然后变成输入流）
+
+
+
+```
+#1，CLOB
+```
+
+![](Java4.assets/16-5-1.png)
+
+```
+Reader
+1）输入
+ps = conn.prepareStatement("insert into t_user (username,myInfo) values (?,?) ");
+ps.setString(1, "高淇");
+//1将文本文件内容直接输入到数据库中
+ps.setClob(2, new FileReader(new File("d:/a.txt")));  
+
+//2将程序中的字符串输入到数据库的CLOB字段中
+ps.setClob(2, new BufferedReader(new InputStreamReader(new ByteArrayInputStream("aaa".getBytes()))));
+			
+2) 输出			
+ps = conn.prepareStatement("select * from t_user where id=?");
+ps.setObject(1, 101024);
+			
+rs = ps.executeQuery();
+while(rs.next()){
+				//获得对象，获得输入流
+				Clob c = rs.getClob("myInfo");
+				r  = c.getCharacterStream();
+				int temp = 0;
+				while((temp=r.read())!=-1){
+					System.out.print((char)temp);
+				}
+}
+
+```
+
+
+
+```
+#2，CLOB
+```
+
+![](Java4.assets/16-5-2.png)
+
+```
+InputStream
+1) 输入
+ps.setBlob(2, new FileInputStream("d:/icon.jpg"));
+
+2）输出 ：然后配合输出流，可以输出成文件
+Blob b = rs.getBlob("headImg");
+is  = b.getBinaryStream();
+```
+
+
+
+### 7）总结封装
+
+```
+#封装个工具类  以及  通过配置文件
+
+1）配置文件 db.properties
+mysqlDriver=com.mysql.cj.jdbc.Driver
+mysqlURL=jdbc\:mysql\://localhost\:3306/testjdbc
+#jdbc:mysql://localhost:3306/test?serverTimezone=UTC
+
+mysqlUser=root
+mysqlPwd=123456
+
+oracleDriver=oracle.jdbc.driver.OracleDriver
+oracleURL=jdbc\:oracle\:thin\:@localhost\:1521\:orcl
+oracleUser=scott
+oraclePwd=tiger
+
+2）工具类	JDBCUtil
+
+public class JDBCUtil {
+
+	static Properties pros = null;   //可以帮助读取和处理资源文件中的信息
+	
+	static {   //加载JDBCUtil类的时候调用
+		pros = new Properties();
+		try {
+//加载SRC下资源			pros.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("db.properties"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	public static Connection getMysqlConn(){
+		try {
+			Class.forName(pros.getProperty("mysqlDriver"));
+			return DriverManager.getConnection(pros.getProperty("mysqlURL"),
+					pros.getProperty("mysqlUser"),pros.getProperty("mysqlPwd"));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public static Connection getOracleConn(){
+		try {
+			Class.forName(pros.getProperty("oracleDriver"));
+			return DriverManager.getConnection(pros.getProperty("oracleURL"),
+					pros.getProperty("oracleUser"),pros.getProperty("oraclePwd"));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public static void close(ResultSet rs,Statement ps,Connection conn){
+		try {
+			if(rs!=null){
+				rs.close();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		try {
+			if(ps!=null){
+				ps.close();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		try {
+			if(conn!=null){
+				conn.close();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void close(Statement ps,Connection conn){
+		try {
+			if(ps!=null){
+				ps.close();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		try {
+			if(conn!=null){
+				conn.close();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	public static void close(Connection conn){
+		try {
+			if(conn!=null){
+				conn.close();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+}
+
+```
+
+
+
+
+
+## 16.3 ORM思想
+
+![](Java4.assets/16-8.png)
+
